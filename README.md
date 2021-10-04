@@ -5,18 +5,16 @@ This repo implements some toy examples of the following score matching algorithm
 * `ssm`: [sliced score matching](https://arxiv.org/abs/1905.07088)
 * `deen`: [deep energy estimator networks](https://arxiv.org/abs/1805.08306) (denoising score matching)
 
-## Install
+## Installation
 Basic requirements:
 * Python >= 3.6
 * TensorFlow >= 2.3.0
 * PyTorch >= 1.8.0
-* Numpy
-* Matplotlib
 
-<!-- Install from PyPI
+Install from PyPI
 ```shell
 pip install toy_gradlogp
-``` -->
+```
 
 Or install the latest version from this repo
 ```shell
@@ -24,6 +22,11 @@ pip install git+https://github.com.Ending2015a/toy_gradlogp.git@master
 ```
 
 ## Examples
+
+Clone this repo to run the example codes!!!
+```
+git clone https://github.com/Ending2015a/toy_gradlogp.git
+```
 
 ### Train an energy model
 
@@ -67,11 +70,14 @@ python -m examples.train_energy --gpu --loss ssm-vr --data 2spirals
 
 ## Results
 
+Tips: The larger density has a lower energy!
+
 ### `8gaussians`
 
 | Algorithm | Results|
 |-|-|
 |`ssm-vr`|![](/assets/ssm-vr_8gaussians.png)|
+|`ssm`|![](/assets/ssm_8gaussians.png)|
 |`deen`| ![](/assets/deen_8gaussians.png) |
 
 ### `2spirals`
@@ -79,16 +85,19 @@ python -m examples.train_energy --gpu --loss ssm-vr --data 2spirals
 | Algorithm | Results|
 |-|-|
 |`ssm-vr`|![](/assets/ssm-vr_2spirals.png)|
+|`ssm`|![](/assets/ssm_2spirals.png)|
 |`deen`| ![](/assets/deen_2spirals.png) |
 
 ### `checkerboard`
 | Algorithm | Results|
 |-|-|
 |`ssm-vr`|![](/assets/ssm-vr_checkerboard.png)|
+|`ssm`|![](/assets/ssm_checkerboard.png)|
 |`deen`| ![](/assets/deen_checkerboard.png) |
 
 ### `rings`
 | Algorithm | Results|
 |-|-|
 |`ssm-vr`|![](/assets/ssm-vr_rings.png)|
+|`ssm`|![](/assets/ssm_rings.png)|
 |`deen`| ![](/assets/deen_rings.png) |
