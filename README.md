@@ -67,8 +67,28 @@ python -m examples.train_energy --gpu --loss ssm-vr --data 2spirals
 
 ## Results
 
-### `ssm-vr`
+### `8gaussians`
 
-### `deen`
+| Algorithm | Results|
+|-|-|
+|`ssm-vr`|![](/assets/ssm-vr_8gaussians.png)|
+|`deen`| ![](/assets/deen_8gaussians.png) |
 
+### `2spirals`
 
+| Algorithm | Results|
+|-|-|
+|`ssm-vr`|![](/assets/ssm-vr_2spirals.png)|
+|`deen`| ![](/assets/deen_2spirals.png) |
+
+### `checkerboard`
+| Algorithm | Results|
+|-|-|
+|`ssm-vr`|![](/assets/ssm-vr_checkerboard.png)|
+|`deen`| ![](/assets/deen_checkerboard.png) |
+
+### `rings`
+| Algorithm | Results|
+|-|-|
+|`ssm-vr`|![](/assets/ssm-vr_rings.png)|
+|`deen`| ![](/assets/deen_rings.png) |
