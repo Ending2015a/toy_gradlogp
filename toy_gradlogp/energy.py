@@ -202,9 +202,8 @@ class Trainer():
         Deep Energy Estimator Networks
 
         The loss is computed as
-        
         x_ = x + v   # noisy samples
-        s = dE(x_)/dx_
+        s = -dE(x_)/dx_
         loss = 1/2*||x - x_ + sigma^2*s||^2
 
         Args:
@@ -229,12 +228,17 @@ class Trainer():
             and Denoising Autoencoders
 
         The loss is computed as
-
+        x_ = x + v   # noisy samples
+        s = -dE(x_)/dx_
+        loss = 1/2*||s + (x-x_)/sigma^2||^2
 
         Args:
-            x ([type]): [description]
-            v ([type]): [description]
-            sigma (float, optional): [description]. Defaults to 0.1.
+            x (torch.Tensor): input samples
+            v (torch.Tensor): sampled noises
+            sigma (float, optional): noise scale. Defaults to 0.1.
+        
+        Returns:
+            DSM loss
         """
         x = x.requires_grad_()
         v = v * sigma
@@ -273,7 +277,7 @@ class Trainer():
         return v
             
     
-    def get_loss(self, x, v=None, sigma=0.08):
+    def get_loss(self, x, v=None):
         """Compute loss
 
         Args:
@@ -291,10 +295,10 @@ class Trainer():
             loss = self.ssm_loss(x, v)
         elif self.loss_type == 'deen':
             v = self.get_random_noise(x, None)
-            loss = self.deen_loss(x, v, sigma=sigma)
+            loss = self.deen_loss(x, v)
         elif self.loss_type == 'dsm':
             v = self.get_random_noise(x, None)
-            loss = self.dsm_loss(x, v, sigma=sigma)
+            loss = self.dsm_loss(x, v)
         else:
             raise NotImplementedError(
                 f"Loss type '{self.loss_type}' not implemented."
@@ -441,104 +445,3 @@ class Trainer():
                 vis_callback(self)
                 self.model.train()
         return self
-
-
-# --- dynamics ---
-def langevin_dynamics(
-    model,
-    x,
-    eps=0.1,
-    n_steps=1000
-):
-    """Langevin dynamics
-
-    Args:
-        model (nn.Module): energy model
-        x (torch.Tensor): input samples
-        eps (float, optional): noise scale. Defaults to 0.1.
-        n_steps (int, optional): number of steps. Defaults to 1000.
-
-    Returns:
-        torch.Tensor: sampled data
-    """    
-    for i in range(n_steps):
-        x = x + eps/2. * model.score(x).detach()
-        x = x + torch.randn_like(x) * np.sqrt(eps)
-    return x
-
-def anneal_langevin_dynamics(
-    model,
-    x,
-    sigmas=None,
-    eps=0.1,
-    n_steps_each=100
-):
-    # default sigma schedule
-    if sigmas is None:
-        sigmas = np.exp(np.linspace(np.log(20), 0., 10))
-
-    for sigma in sigmas:
-        for i in range(n_steps_each):
-            cur_eps = eps * (sigma / sigmas[-1]) ** 2
-            x = x + cur_eps/2. * model.score(x, sigma).detach()
-            x = x + torch.randn_like(x) * np.sqrt(eps)
-    return x
-
-# --- sampling utils ---
-def sample_score_field(
-    model,
-    range_lim=4,
-    grid_size=50,
-    device='cpu'
-):
-    """Sampling score field from an energy model
-
-    Args:
-        model (nn.Module): energy model.
-        range_lim (int, optional): Range of x, y coordimates. Defaults to 4.
-        grid_size (int, optional): Grid size. Defaults to 50.
-        device (str, optional): torch device. Defaults to 'cpu'.
-    """
-    mesh = []
-    x = np.linspace(-range_lim, range_lim, grid_size)
-    y = np.linspace(-range_lim, range_lim, grid_size)
-    for i in x:
-        for j in y:
-            mesh.append(np.asarray([i, j]))
-    mesh = np.stack(mesh, axis=0)
-    x = torch.from_numpy(mesh).float()
-    x = x.to(device=device)
-    scores = model.score(x.detach())
-    scores = scores.detach().cpu().numpy()
-    return mesh, scores
-
-def sample_energy_field(
-    model,
-    range_lim=4,
-    grid_size=1000,
-    device='cpu'
-):
-    """Sampling energy field from an energy model
-
-    Args:
-        model (nn.Module): energy model.
-        range_lim (int, optional): range of x, y coordinates. Defaults to 4.
-        grid_size (int, optional): grid size. Defaults to 1000.
-        device (str, optional): torch device. Defaults to 'cpu'.
-    """
-    energy = []
-    x = np.linspace(-range_lim, range_lim, grid_size)
-    y = np.linspace(-range_lim, range_lim, grid_size)
-    for i in y:
-        mesh = []
-        for j in x:
-            mesh.append(np.asarray([j, i]))
-        mesh = np.stack(mesh, axis=0)
-        inputs = torch.from_numpy(mesh).float()
-        inputs = inputs.to(device=device)
-        e = model(inputs.detach())
-        e = e.detach().view(grid_size).cpu().numpy()
-        energy.append(e)
-    energy = np.stack(energy, axis=0) # (grid_size, grid_size)
-    energy = energy[::-1] # flip y
-    return energy

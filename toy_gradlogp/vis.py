@@ -48,6 +48,9 @@ def plot_scores(
 def plot_energy(
     ax,
     energy,
-    cmap=plt.cm.viridis
+    cmap=plt.cm.viridis,
+    flip_y=True
 ):
+    if flip_y:
+        energy = energy[::-1] # flip y
     ax.imshow(energy, cmap=cmap)

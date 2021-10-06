@@ -1,5 +1,5 @@
 """
-This example show how to train an energy model on a Toy Dataset
+This example shows how to train an energy model on a Toy Dataset
 """
 # --- built in ---
 import os
@@ -25,21 +25,22 @@ def parse_args():
         '--data',
         choices=['8gaussians', '2spirals', 'checkerboard', 'rings'],
         type=str, 
-        default='2spirals'
+        default='2spirals',
+        help='dataset'
     )
     parser.add_argument(
         '--loss',
         choices=['ssm-vr', 'ssm', 'deen', 'dsm'],
         type=str,
         default='ssm-vr',
-        help='Loss type'
+        help='loss type'
     )
     parser.add_argument(
         '--noise',
         choices=['radermacher', 'sphere', 'gaussian'],
         type=str,
         default='gaussian',
-        help='Noise type'
+        help='noise type'
     )
     parser.add_argument('--lr', type=float, default=1e-3, help='learning rate')
     parser.add_argument('--size', type=int, default=1000000, help='dataset size')
@@ -47,10 +48,12 @@ def parse_args():
     parser.add_argument('--batch_size', type=int, default=100, help='training batch size')
     parser.add_argument('--n_epochs', type=int, default=4, help='number of epochs to train')
     parser.add_argument('--n_slices', type=int, default=1, help='number of slices for sliced score matching')
-    parser.add_argument('--gpu', action='store_true', default=False)
-    parser.add_argument('--log_freq', type=int, default=1)
-    parser.add_argument('--eval_freq', type=int, default=2)
-    parser.add_argument('--vis_freq', type=int, default=2)
+    parser.add_argument('--n_steps', type=int, default=100, help='number of steps for langevin dynamics')
+    parser.add_argument('--eps', type=float, default=0.01, help='noise scale for langevin dynamics')
+    parser.add_argument('--gpu', action='store_true', default=False, help='enable gpu')
+    parser.add_argument('--log_freq', type=int, default=1, help='logging frequency (unit: epoch)')
+    parser.add_argument('--eval_freq', type=int, default=2, help='evaluation frequency (unit: epoch)')
+    parser.add_argument('--vis_freq', type=int, default=2, help='visualization frequency (unit: epoch)')
     return parser.parse_args()
 
 def main():
@@ -91,7 +94,9 @@ def main():
         vis_callback = functools.partial(
             visualize,
             vis_path = vis_path,
-            data = data
+            data = data,
+            steps = a.n_steps,
+            eps = a.eps
         ),
         tb_logdir = tb_path
     )
@@ -104,8 +109,8 @@ def make_path(path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
 
 def plot_score_field(ax, trainer):
-    mesh, scores = glogp.energy.sample_score_field(
-        trainer.model,
+    mesh, scores = glogp.utils.sample_score_field(
+        trainer.model.score,
         device=trainer.device
     )
     # draw scores
@@ -115,7 +120,7 @@ def plot_score_field(ax, trainer):
     ax.set_title('Estimated scores', fontsize=16)
 
 def plot_energy_field(ax, trainer):
-    energy = glogp.energy.sample_energy_field(
+    energy = glogp.utils.sample_energy_field(
         trainer.model,
         device=trainer.device
     )
@@ -125,16 +130,16 @@ def plot_energy_field(ax, trainer):
     glogp.vis.plot_energy(ax, energy)
     ax.set_title('Estimated energy', fontsize=16)
 
-def plot_samples(ax, trainer):
+def plot_samples(ax, trainer, steps, eps):
     samples = []
     for i in range(1000):
         x = torch.rand(1000, 2) * 8 - 4
         x = x.to(device=trainer.device)
-        x = glogp.energy.langevin_dynamics(
-            trainer.model,
+        x = glogp.utils.langevin_dynamics(
+            trainer.model.score,
             x,
-            n_steps = 100,
-            eps = 0.01
+            n_steps=steps,
+            eps=eps
         ).detach().cpu().numpy()
         samples.append(x)
     samples = np.concatenate(samples, axis=0)
@@ -144,7 +149,7 @@ def plot_samples(ax, trainer):
     glogp.vis.plot_data(ax, samples)
     ax.set_title('Sampled data', fontsize=16)
 
-def visualize(trainer, vis_path, data):
+def visualize(trainer, vis_path, data, steps, eps):
     logging.info('Visualizing data ...')
     name = F"{trainer.num_epochs:04d}.png"
     vis_path = os.path.join(vis_path, name)
@@ -155,7 +160,7 @@ def visualize(trainer, vis_path, data):
     axs[0].axis('off')
     glogp.vis.plot_data(axs[0], data)
     axs[0].set_title('Ground truth data', fontsize=16)
-    plot_samples(axs[1], trainer)
+    plot_samples(axs[1], trainer, steps, eps)
     plot_energy_field(axs[2], trainer)
     plot_score_field(axs[3], trainer)
     for ax in axs:
