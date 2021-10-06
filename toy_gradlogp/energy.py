@@ -15,17 +15,20 @@ from torch.utils.tensorboard import SummaryWriter
 # --- my module ---
 
 __all__ = [
+    'ToyMLP',
     'Energy',
     'Trainer',
-    'langevin_dynamics',
-    'anneal_langevin_dynamics',
-    'sample_score_field',
-    'sample_energy_field'
 ]
 
 # --- primitives ---
 class Swish(nn.Module):
     def __init__(self, dim=-1):
+        """Swish activ bootleg from
+        https://github.com/wgrathwohl/LSD/blob/master/networks.py#L299
+
+        Args:
+            dim (int, optional): input/output dimension. Defaults to -1.
+        """
         super().__init__()
         if dim > 0:
             self.beta = nn.Parameter(torch.ones((dim,)))
@@ -64,7 +67,7 @@ class ToyMLP(nn.Module):
         for out_dim in units:
             layers.extend([
                 nn.Linear(in_dim, out_dim),
-                Swish(out_dim) if swish == 'swish' else nn.Softplus(),
+                Swish(out_dim) if swish else nn.Softplus(),
                 nn.Dropout(.5) if dropout else nn.Identity()
             ])
             in_dim = out_dim
@@ -78,7 +81,8 @@ class ToyMLP(nn.Module):
 # --- energy model ---
 class Energy(nn.Module):
     def __init__(self, net):
-        """Energy model
+        """A simple energy model
+
         Args:
             net (nn.Module): An energy function, the output shape of
                 the energy function should be (b, 1). The score is
