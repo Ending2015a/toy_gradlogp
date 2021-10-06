@@ -26,7 +26,7 @@ pip install git+https://github.com.Ending2015a/toy_gradlogp.git@master
 ```
 
 ## Examples
-The examples are placed in [gradlogp/run/](https://github.com/Ending2015a/toy_gradlogp/gradlogp/run)
+The examples are placed in [gradlogp/run/](https://github.com/Ending2015a/toy_gradlogp/tree/master/toy_gradlogp/run)
 
 ### Train an energy model
 
