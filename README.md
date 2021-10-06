@@ -1,9 +1,13 @@
+
+<img src="https://user-images.githubusercontent.com/18180004/136144615-0cd92028-8226-40c1-81ee-fa6c067e91e3.png" align="right" width="25%"/>
+
 # toy_gradlogp
 
 This repo implements some toy examples of the following score matching algorithms in PyTorch:
 * `ssm-vr`: [sliced score matching](https://arxiv.org/abs/1905.07088) with variance reduction
 * `ssm`: [sliced score matching](https://arxiv.org/abs/1905.07088)
-* `deen`: [deep energy estimator networks](https://arxiv.org/abs/1805.08306) (denoising score matching)
+* `deen`: [deep energy estimator networks](https://arxiv.org/abs/1805.08306)
+* `dsm`: [denoisnig score matching](http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf)
 
 ## Installation
 Basic requirements:
@@ -22,33 +26,40 @@ pip install git+https://github.com.Ending2015a/toy_gradlogp.git@master
 ```
 
 ## Examples
-
-Clone this repo to run the example codes!!!
-```
-git clone https://github.com/Ending2015a/toy_gradlogp.git
-```
+The examples are placed in [gradlogp/run/](https://github.com/Ending2015a/toy_gradlogp/gradlogp/run)
 
 ### Train an energy model
 
-Type `--help` to see this message:
+Run `ssm-vr` on `2spirals` dataset (don't forget to add `--gpu` to enable gpu)
+```shell
+python -m gradlogp.run.train_energy --gpu --loss ssm-vr --data 2spirals
+```
+
+To see the full options, type `--help` command:
+```
+python -m gradlogp.run.train_energy --help
+```
+
 ```
 usage: train_energy.py [-h] [--logdir LOGDIR]
                        [--data {8gaussians,2spirals,checkerboard,rings}]
-                       [--loss {ssm-vr,ssm,deen}]
+                       [--loss {ssm-vr,ssm,deen,dsm}]
                        [--noise {radermacher,sphere,gaussian}] [--lr LR]
                        [--size SIZE] [--eval_size EVAL_SIZE]
                        [--batch_size BATCH_SIZE] [--n_epochs N_EPOCHS]
-                       [--n_slices N_SLICES] [--gpu] [--log_freq LOG_FREQ]
-                       [--eval_freq EVAL_FREQ] [--vis_freq VIS_FREQ]
+                       [--n_slices N_SLICES] [--n_steps N_STEPS] [--eps EPS]
+                       [--gpu] [--log_freq LOG_FREQ] [--eval_freq EVAL_FREQ]
+                       [--vis_freq VIS_FREQ]
 
 optional arguments:
   -h, --help            show this help message and exit
   --logdir LOGDIR
   --data {8gaussians,2spirals,checkerboard,rings}
-  --loss {ssm-vr,ssm,deen}
-                        Loss type
+                        dataset
+  --loss {ssm-vr,ssm,deen,dsm}
+                        loss type
   --noise {radermacher,sphere,gaussian}
-                        Noise type
+                        noise type
   --lr LR               learning rate
   --size SIZE           dataset size
   --eval_size EVAL_SIZE
@@ -57,15 +68,13 @@ optional arguments:
                         training batch size
   --n_epochs N_EPOCHS   number of epochs to train
   --n_slices N_SLICES   number of slices for sliced score matching
-  --gpu
-  --log_freq LOG_FREQ
+  --n_steps N_STEPS     number of steps for langevin dynamics
+  --eps EPS             noise scale for langevin dynamics
+  --gpu                 enable gpu
+  --log_freq LOG_FREQ   logging frequency (unit: epoch)
   --eval_freq EVAL_FREQ
-  --vis_freq VIS_FREQ
-```
-
-Run `ssm-vr` on `2spirals` dataset
-```shell
-python -m examples.train_energy --gpu --loss ssm-vr --data 2spirals
+                        evaluation frequency (unit: epoch)
+  --vis_freq VIS_FREQ   visualization frequency (unit: epoch)
 ```
 
 ## Results
@@ -79,6 +88,7 @@ Tips: The larger density has a lower energy!
 |`ssm-vr`|![](/assets/ssm-vr_8gaussians.png)|
 |`ssm`|![](/assets/ssm_8gaussians.png)|
 |`deen`| ![](/assets/deen_8gaussians.png) |
+|`dsm`| ![](/assets/dsm_8gaussians.png) |
 
 ### `2spirals`
 
@@ -87,6 +97,7 @@ Tips: The larger density has a lower energy!
 |`ssm-vr`|![](/assets/ssm-vr_2spirals.png)|
 |`ssm`|![](/assets/ssm_2spirals.png)|
 |`deen`| ![](/assets/deen_2spirals.png) |
+|`dsm`| ![](/assets/dsm_2spirals.png) |
 
 ### `checkerboard`
 | Algorithm | Results|
@@ -94,6 +105,7 @@ Tips: The larger density has a lower energy!
 |`ssm-vr`|![](/assets/ssm-vr_checkerboard.png)|
 |`ssm`|![](/assets/ssm_checkerboard.png)|
 |`deen`| ![](/assets/deen_checkerboard.png) |
+|`dsm`| ![](/assets/dsm_checkerboard.png) |
 
 ### `rings`
 | Algorithm | Results|
@@ -101,3 +113,4 @@ Tips: The larger density has a lower energy!
 |`ssm-vr`|![](/assets/ssm-vr_rings.png)|
 |`ssm`|![](/assets/ssm_rings.png)|
 |`deen`| ![](/assets/deen_rings.png) |
+|`dsm`| ![](/assets/dsm_rings.png) |
