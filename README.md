@@ -26,18 +26,18 @@ pip install git+https://github.com.Ending2015a/toy_gradlogp.git@master
 ```
 
 ## Examples
-The examples are placed in [gradlogp/run/](https://github.com/Ending2015a/toy_gradlogp/tree/master/toy_gradlogp/run)
+The examples are placed in [toy_gradlogp/run/](https://github.com/Ending2015a/toy_gradlogp/tree/master/toy_gradlogp/run)
 
 ### Train an energy model
 
 Run `ssm-vr` on `2spirals` dataset (don't forget to add `--gpu` to enable gpu)
 ```shell
-python -m gradlogp.run.train_energy --gpu --loss ssm-vr --data 2spirals
+python -m toy_gradlogp.run.train_energy --gpu --loss ssm-vr --data 2spirals
 ```
 
 To see the full options, type `--help` command:
 ```
-python -m gradlogp.run.train_energy --help
+python -m toy_gradlogp.run.train_energy --help
 ```
 
 ```
