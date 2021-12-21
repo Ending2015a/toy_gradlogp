@@ -9,6 +9,10 @@ This repo implements some toy examples of the following score matching algorithm
 * `deen`: [deep energy estimator networks](https://arxiv.org/abs/1805.08306)
 * `dsm`: [denoisnig score matching](http://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf)
 
+
+Related projects:
+* [toy_gradlogp_tf2](https://github.com/Ending2015a/toy_gradlogp_tf2): TensorFlow 2.0 Implementation.
+
 ## Installation
 Basic requirements:
 * Python >= 3.6

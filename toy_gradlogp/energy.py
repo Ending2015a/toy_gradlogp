@@ -142,7 +142,7 @@ class Trainer():
 
         self.model = self.model.to(device=self.device)
         # setup optimizer
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=0.001)
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
         
         self.num_gradsteps = 0
         self.num_epochs = 0
