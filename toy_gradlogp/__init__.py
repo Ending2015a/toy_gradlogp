@@ -6,4 +6,4 @@ from . import energy
 from .data import *
 from .vis import *
 
-__version__ = '0.2.1'
+__version__ = '0.2.2'
